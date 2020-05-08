@@ -120,7 +120,7 @@ public class Dao {
 				stmtPrep = con.prepareStatement(sql); 
 				stmtPrep.setInt(1, asiakas_id);
         		rs = stmtPrep.executeQuery();  
-        		if(rs.isBeforeFirst()){ //jos kysely tuotti dataa, eli rekNo on käytössä
+        		if(rs.isBeforeFirst()){ 
         			rs.next();
         			asiakas = new Asiakas();        			
         			asiakas.setAsiakas_id(rs.getInt(1));
@@ -158,6 +158,8 @@ public class Dao {
 		}				
 		return paluuArvo;
 	}
+	
+	
 	
 	public boolean poistaAsiakas(int asiakas_id){ //Oikeassa elämässä tiedot ensisijaisesti merkitään poistetuksi.
 		boolean paluuArvo=true;

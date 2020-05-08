@@ -1,7 +1,8 @@
 package model;
 
 public class Asiakas {
-	private int asiakas_id, puhelin;
+	private int asiakas_id;
+	private int puhelin;
 	private String etunimi, sukunimi, sposti;
 	public Asiakas() {
 		super();
