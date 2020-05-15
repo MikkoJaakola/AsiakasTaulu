@@ -54,6 +54,7 @@
 	        	htmlStr+="<td>"+field.sukunimi+"</td>";
 	        	htmlStr+="<td>"+field.puhelin+"</td>";
 	        	htmlStr+="<td>"+field.sposti+"</td>";
+	        	htmlStr+="<td><a href='muutaasiakas.jsp?asiakas_id="+field.asiakas_id+"'>Muuta</a>&nbsp;"; 
 	        	htmlStr+="<td><span class='poista' onclick=poista('"+field.asiakas_id+"')>Poista</span></td>";
 	        	htmlStr+="</tr>";
 	        	$("#lista tbody").append(htmlStr);
