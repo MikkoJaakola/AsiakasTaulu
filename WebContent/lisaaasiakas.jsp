@@ -5,23 +5,22 @@
 <head>
 <meta charset="ISO-8859-1">
 <script src="scripts/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/main.css">
-<title>Insert title here</title>
+<title>Asiakkaan lisäys</title>
 </head>
-<body>
+<body onkeydown="tutkiKey(event)">
 <form id="tiedot">
 	<table>
 		<thead>	
 			<tr>
-				<th colspan="5" class="oikealle"><span id="takaisin">Takaisin listaukseen</span></th>
+				<th colspan="3" id="ilmo"></th>
+				<th colspan="2" class="oikealle"><a href="listaaasiakkaat.jsp" id="takaisin">Takaisin listaukseen</a></th>
 			</tr>		
 			<tr>
-				<th>id</th>
+				<th>Asiakas id</th>
 				<th>Etunimi</th>
 				<th>Sukunimi</th>
-				<th>Puh.</th>
+				<th>Puhelin</th>
 				<th>Email</th>
 				<th></th>
 			</tr>
@@ -32,8 +31,8 @@
 				<td><input type="text" name="etunimi" id="etunimi"></td>
 				<td><input type="text" name="sukunimi" id="sukunimi"></td>
 				<td><input type="text" name="puhelin" id="puhelin"></td>
-				<td><input type="text" name="sposti" id="sposti"></td>
-				<td><input type="submit" id="tallenna" value="Lisää"></td>
+				<td><input type="text" name="sposti" id="sposti"></td>  
+				<td><input type="button" name="nappi" id="tallenna" value="Lisää" onclick="lisaaTiedot()"></td>
 			</tr>
 		</tbody>
 	</table>
@@ -41,83 +40,69 @@
 <span id="ilmo"></span>
 </body>
 <script>
-$(document).ready(function(){
-	$("#takaisin").click(function(){
-		document.location="listaaasiakkaat.jsp";
-	});
+function tutkiKey(event){
+	if(event.keyCode==13){
+		lisaaTiedot();
+	}
 	
-	
-	
-	$("#tiedot").validate({						
-		rules: {
-			asiakas_id:  {
-				required: true,
-				number: true,
-								
-			},	
-			etunimi:  {
-				required: true,
-				minlength: 2				
-			},
-			sukunimi:  {
-				required: true,
-				minlength: 2
-			},	
-			puhelin:  {
-				required: true,
-				number: true,
-				minlength: 4,
-				maxlength: 12,
-				
-			},
-			sposti:  {
-				required: true,
-				minlength: 5
-			}
-		},
-		messages: {
-			asiakas_id: {     
-				required: "Puuttuu",
-				number: "Anna numero"
-							
-			},
-			etunimi: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			},
-			sukunimi: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			},
-			puhelin: {
-				required: "Puuttuu",
-				number: "Ei kelpaa",
-				minlength: "Liian lyhyt",
-				maxlength: "Liian pitkä",
-				
-			},
-			sposti: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			}
-		},			
-		submitHandler: function(form) {	
-			lisaaTiedot();
-		}		
-	}); 	
-});
-//funktio tietojen lisäämistä varten. Kutsutaan backin POST-metodia ja välitetään kutsun mukana uudet tiedot json-stringinä.
-//POST /autot/
+}
+
+document.getElementById("asiakas_id").focus();
+
+
 function lisaaTiedot(){	
-	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
-	$.ajax({url:"asiakkaat", data:formJsonStr, type:"POST", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}       
-		if(result.response==0){
-      	$("#ilmo").html("Asiakkaan lisääminen epäonnistui.");
-      }else if(result.response==1){			
-      	$("#ilmo").html("Asiakkaan lisääminen onnistui.");
-      	$("#siakas_id", "#etunimi", "#sukunimi", "#puhelin", "#sposti").val("");
+	var ilmo="";
+	
+	if(document.getElementById("etunimi").value.length<2){
+		document.getElementById("ilmo").innerHTML="Liian lyhyt nimi!";
+		return;
+	}else if(document.getElementById("sukunimi").value.length<2){
+		document.getElementById("ilmo").innerHTML="Liian lyhyt nimi!";
+		return;
+	}else if(document.getElementById("puhelin").value*1!=document.getElementById("puhelin").value){
+		document.getElementById("ilmo").innerHTML="Puhelinnumeron täytyy olla luku!";
+		return;
+	}else if(document.getElementById("puhelin").value.length!=10){
+		document.getElementById("ilmo").innerHTML="Numeron täytyy olla 10 merkkiä pitkä!";
+		return;
+	}else if(document.getElementById("sposti").value.length<5){
+		document.getElementById("ilmo").innerHTML="Liian lyhyt osoite!";
+		return;
+	
+	}
+	
+	
+	if(ilmo!=""){
+		document.getElementById("ilmo").innerHTML=ilmo;
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 3000);
+		return;
+	}
+	document.getElementById("asiakas_id").value=siivoa(document.getElementById("asiakas_id").value);
+	document.getElementById("etunimi").value=siivoa(document.getElementById("etunimi").value);
+	document.getElementById("sukunimi").value=siivoa(document.getElementById("sukunimi").value);
+	document.getElementById("puhelin").value=siivoa(document.getElementById("puhelin").value);
+	document.getElementById("sposti").value=siivoa(document.getElementById("sposti").value);
+	
+		
+	var formJsonStr=formDataToJSON(document.getElementById("tiedot")); 
+	
+	fetch("asiakkaat",{
+	      method: 'POST',
+	      body:formJsonStr
+	    })
+	.then( function (response) {		
+		return response.json()
+	})
+	.then( function (responseJson) {
+		var vastaus = responseJson.response;		
+		if(vastaus==0){
+			document.getElementById("ilmo").innerHTML= "Asiakkaan lisääminen epäonnistui";
+      	}else if(vastaus==1){	        	
+      		document.getElementById("ilmo").innerHTML= "Asiakkaan lisääminen onnistui";			      	
 		}
-  }});	
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 5000);
+	});	
+	document.getElementById("tiedot").reset(); 
 }
 </script>
 </html>
